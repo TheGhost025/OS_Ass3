@@ -199,7 +199,8 @@ public class Main {
                             processes.get(i).setProcessState(true);
                             partitions.get(index).setPartitionSize(processes.get(i).getProcessSize());
                             if(sizeNewPartiton!=0){
-                                partitions.add(index+1,new Partition(sizeNewPartiton,"Partition "+(partitions.size()+1)));
+                                partitions.add(index+1,new Partition(sizeNewPartiton,"Partition "+(size+1)));
+                                size++;
                             }
                             break;
                         }
