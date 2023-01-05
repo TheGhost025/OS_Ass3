@@ -126,7 +126,124 @@ public class Main {
         }
     //Worst Fit
         else if(choose==2){
+                //choosing the suitable partition for each process
+                for (int i=0;i<maxNumOfProcess;i++)
+                {
+                    int worstIndex = -1;
 
+                    for (int j=0;j<partitions.size();j++)
+                    {
+                        if (partitions.get(j).getPartitionSize() >= processes.get(i).getProcessSize())
+                        {
+                            if (worstIndex == -1)
+                                worstIndex = j;
+
+                            else if (partitions.get(worstIndex).getPartitionSize() < partitions.get(j).getPartitionSize())
+                                worstIndex = j;
+                        }
+                    }
+
+                    // If a partition for the current process is found
+                    if (worstIndex != -1)
+                    {
+
+                        int sizeNewPartiton=partitions.get(worstIndex).getPartitionSize()-processes.get(i).getProcessSize();
+
+                        partitions.get(worstIndex).setPartitionProcess(processes.get(i));
+
+                        processes.get(i).setProcessState(true);
+
+                        partitions.get(worstIndex).setPartitionSize(processes.get(i).getProcessSize());
+
+                        if(sizeNewPartiton!=0){
+
+                            partitions.add(worstIndex+1,new Partition(sizeNewPartiton,"Partition "+(partitions.size()+1)));
+                        }
+                    }
+                }
+
+                for(int i=0;i<partitions.size();i++){
+                    System.out.print(partitions.get(i).getPartitionName()+" "+partitions.get(i).getPartitionSize()+ " KB => ");
+                    if(partitions.get(i).getPartitionProcess()!=null){
+                        System.out.print(partitions.get(i).getPartitionProcess().getProcessName());
+                    }
+                    else {
+                        System.out.print("External fragment");
+                    }
+                    System.out.println();
+                }
+                System.out.print("Do you want to compact? 1.yes 2.no ");
+                int state=myObj.nextInt();
+
+
+                //compaction
+                if(state==1){
+                    int sum=0;
+
+                    int size=partitions.size()+1;
+
+                    LinkedList<Partition> deletedPartion=new LinkedList<Partition>();
+                    for(int i=0;i<partitions.size();i++){
+
+                        if(partitions.get(i).getPartitionProcess()==null){
+                            sum+=partitions.get(i).getPartitionSize();
+                            deletedPartion.add(partitions.get(i));
+                        }
+                    }
+
+                    for(int i=0;i< deletedPartion.size();i++){
+                        partitions.remove(deletedPartion.get(i));
+                    }
+
+                    partitions.add(new Partition(sum,"Partition "+size));
+
+                    for (int i=0;i<maxNumOfProcess;i++)
+                    {
+                        int worstIndex = -1;
+                        if(!processes.get(i).getProcessState()){
+                            for (int j=0;j<partitions.size();j++)
+                            {
+                                if (partitions.get(j).getPartitionSize() >= processes.get(i).getProcessSize())
+                                {
+                                    if (worstIndex == -1)
+                                        worstIndex = j;
+
+                                    else if (partitions.get(worstIndex).getPartitionSize() < partitions.get(j).getPartitionSize())
+                                        worstIndex = j;
+                                }
+                            }
+
+                            // If a partition for the current process is found
+                            if (worstIndex != -1)
+                            {
+                                int sizeNewPartiton=partitions.get(worstIndex).getPartitionSize()-processes.get(i).getProcessSize();
+
+                                partitions.get(worstIndex).setPartitionProcess(processes.get(i));
+
+                                processes.get(i).setProcessState(true);
+
+                                partitions.get(worstIndex).setPartitionSize(processes.get(i).getProcessSize());
+
+                                if(sizeNewPartiton!=0){
+
+                                    partitions.add(worstIndex+1,new Partition(sizeNewPartiton,"Partition "+(size+1)));
+                                    size++;
+                                }
+                            }
+                        }
+                    }
+
+                    for(int i=0;i<partitions.size();i++){
+                        System.out.print(partitions.get(i).getPartitionName()+" "+partitions.get(i).getPartitionSize()+ " KB => ");
+                        if(partitions.get(i).getPartitionProcess()!=null){
+                            System.out.print(partitions.get(i).getPartitionProcess().getProcessName());
+                        }
+                        else {
+                            System.out.print("External fragment");
+                        }
+                        System.out.println();
+                    }
+                }
         }
         //Best Fit
         else if(choose==3){
@@ -202,7 +319,6 @@ public class Main {
                                 partitions.add(index+1,new Partition(sizeNewPartiton,"Partition "+(size+1)));
                                 size++;
                             }
-                            break;
                         }
                     }
                 }
